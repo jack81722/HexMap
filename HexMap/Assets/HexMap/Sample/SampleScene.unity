@@ -903,6 +903,12 @@ PrefabInstance:
       propertyPath: noiseSource
       value: 
       objectReference: {fileID: 2800000, guid: b6911910f3ebb7c4cb70754a48ab8851, type: 3}
+    - target: {fileID: 9209589671260806227, guid: 106afea08a18c2745b3a59dc2cd47bb1,
+        type: 3}
+      propertyPath: chunkPrefab
+      value: 
+      objectReference: {fileID: 5431936616899097208, guid: 0b0a55a362b716b4d93ef96dc7acbc0d,
+        type: 3}
     - target: {fileID: 9209589671260806224, guid: 106afea08a18c2745b3a59dc2cd47bb1,
         type: 3}
       propertyPath: m_LocalPosition.x

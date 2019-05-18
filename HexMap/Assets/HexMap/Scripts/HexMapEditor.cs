@@ -40,9 +40,8 @@ public class HexMapEditor : MonoBehaviour
 
     private void editCell(HexCell cell)
     {
-        cell.color = activeColor;
+        cell.Color = activeColor;
         cell.Elevation = activeElevation;
-        hexGrid.Refresh();
     }
 
     public void SetElevation(float elevation)
