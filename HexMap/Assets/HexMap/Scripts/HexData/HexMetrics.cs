@@ -5,8 +5,11 @@ using UnityEngine;
 public static class HexMetrics
 {
     #region Basic hex factors
+    public const float OuterToInner = 0.866025404f;
+    public const float InnerToOuter = 1f / OuterToInner;
+
     public const float OuterRadius = 10f;
-    public const float InnerRadius = OuterRadius * 0.866025404f;
+    public const float InnerRadius = OuterRadius * OuterToInner;
 
     public static Vector3[] corners =
     {
@@ -31,6 +34,13 @@ public static class HexMetrics
     public static Vector3 GetBridge(HexDirection direction)
     {
         return (corners[(int)direction] + corners[((int)direction + 1) % corners.Length]) * BlendFactor;
+    }
+
+    public static Vector3 GetSolidEdgeMiddle(HexDirection direction)
+    {
+        return
+            (corners[(int)direction] + corners[((int)direction + 1) % corners.Length]) *
+            (0.5f * SolidFactor);
     }
     #endregion
 
@@ -95,9 +105,22 @@ public static class HexMetrics
             position.x * NoiseScale,
             position.z * NoiseScale);
     }
+
+    public static Vector3 Perturb(Vector3 position)
+    {
+        Vector4 sample = SampleNoise(position);
+        position.x += (sample.x * 2f - 1f) * CellPerturbStrength;
+        position.z += (sample.z * 2f - 1f) * CellPerturbStrength;
+        return position;
+    }
     #endregion
 
+    #region Chunk factors
     public const int ChunkSizeX = 5, ChunkSizeZ = 5;
+    #endregion
 
-
+    #region River factors
+    public const float StreamBedElevationOffset = -1.75f;
+    public const float RiverSurfaceElevationOffset = -0.5f;
+    #endregion
 }
