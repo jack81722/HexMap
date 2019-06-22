@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -34,6 +35,14 @@ public class HexCell : MonoBehaviour
                 RemoveOutgoingRiver();
             if (hasIncomingRiver && elevation > GetNeighbor(incomingRiver).elevation)
                 RemoveIncomingRiver();
+
+            for(int i = 0; i < roads.Length; i++)
+            {
+                if(roads[i] && GetElevationDifference((HexDirection)i) > 1)
+                {
+                    SetRoad(i, false);
+                }
+            }
 
             refresh();
         }
@@ -89,8 +98,15 @@ public class HexCell : MonoBehaviour
     {
         get { return outgoingRiver; }
     }
-    #endregion
 
+    public HexDirection RiverBeginOrEndDirection
+    {
+        get
+        {
+            return hasIncomingRiver ? incomingRiver : outgoingRiver;
+        }
+    }
+    #endregion
 
     public Color Color
     {
@@ -114,6 +130,14 @@ public class HexCell : MonoBehaviour
 
     [SerializeField]
     public HexCell[] neighbors;
+
+    [SerializeField]
+    bool[] roads;
+
+    private void Start()
+    {
+        roads = new bool[6];
+    }
 
     public HexEdgeType GetEdgeType(HexDirection direction)
     {
@@ -152,6 +176,12 @@ public class HexCell : MonoBehaviour
         }
     }
 
+    private void refreshSelfOnly()
+    {
+        chunk.Refresh();
+    }
+
+    #region Rivers
     public bool HasRiverThroughEdge(HexDirection direction)
     {
         return 
@@ -204,16 +234,61 @@ public class HexCell : MonoBehaviour
 
         hasOutgoingRiver = true;
         outgoingRiver = direction;
-        refreshSelfOnly();
+        //refreshSelfOnly();
 
         neighbor.RemoveIncomingRiver();
         neighbor.hasIncomingRiver = true;
         neighbor.incomingRiver = direction.Opposite();
-        neighbor.refreshSelfOnly();
+        //neighbor.refreshSelfOnly();
+
+        SetRoad((int)direction, false);
+    }
+    #endregion
+
+    #region Roads
+    public bool HasRoadThroughEdge(HexDirection direction)
+    {
+        return roads[(int)direction];
     }
 
-    private void refreshSelfOnly()
+    public bool HasRoads
     {
-        chunk.Refresh();
+        get
+        {
+            return Array.Exists(roads, road => road);
+        }
     }
+
+    public void RemoveRoads()
+    {
+        for(int i = 0; i < neighbors.Length; i++)
+        {
+            if(roads[i])
+                SetRoad(i, false);
+        }
+    }
+
+    public void AddRoad(HexDirection direction)
+    {
+        if (!roads[(int)direction] && !HasRiverThroughEdge(direction) &&
+            GetElevationDifference(direction) <= 1)
+        {
+            SetRoad((int)direction, true);
+        }
+    }
+
+    public int GetElevationDifference(HexDirection direction)
+    {
+        int difference = elevation - GetNeighbor(direction).elevation;
+        return difference >= 0 ? difference : -difference;
+    }
+
+    private void SetRoad(int index, bool state)
+    {
+        roads[index] = state;
+        neighbors[index].roads[(int)((HexDirection)index).Opposite()] = state;
+        neighbors[index].refreshSelfOnly();
+        refreshSelfOnly();
+    }
+    #endregion
 }
