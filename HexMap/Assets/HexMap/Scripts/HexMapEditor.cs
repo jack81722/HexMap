@@ -15,6 +15,9 @@ public class HexMapEditor : MonoBehaviour
     private bool applyElevation = true;
     private int activeElevation;
 
+    private bool applyWaterLevel = true;
+    private int activeWaterLevel;
+
     private int brushSize;
 
     private enum OptionalToggle
@@ -113,6 +116,8 @@ public class HexMapEditor : MonoBehaviour
                 cell.Color = activeColor;
             if (applyElevation)
                 cell.Elevation = activeElevation;
+            if (applyWaterLevel)
+                cell.WaterLevel = activeWaterLevel;
             if (riverMode == OptionalToggle.No)
                 cell.RemoveRiver();
             if (roadMode == OptionalToggle.No)
@@ -126,8 +131,8 @@ public class HexMapEditor : MonoBehaviour
                         otherCell.SetOutgoinRiver(dragDirection);
                     if (roadMode == OptionalToggle.Yes)
                         otherCell.AddRoad(dragDirection);
+                    
                 }
-                //previousCell.SetOutgoinRiver(dragDirection);
             }
         }
     }
@@ -167,5 +172,15 @@ public class HexMapEditor : MonoBehaviour
     public void SetRoadMode(int mode)
     {
         roadMode = (OptionalToggle)mode;
+    }
+
+    public void SetApplyWaterLevel(bool toggle)
+    {
+        applyWaterLevel = toggle;
+    }
+
+    public void SetWaterLevel(float level)
+    {
+        activeWaterLevel = (int)level;
     }
 }

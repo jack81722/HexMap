@@ -121,6 +121,27 @@ public static class HexMetrics
 
     #region River factors
     public const float StreamBedElevationOffset = -1.75f;
-    public const float RiverSurfaceElevationOffset = -0.5f;
+    public const float WaterElevationOffset = -0.5f;
+    #endregion
+
+    #region Water
+    public const float WaterFactor = 0.6f;
+    public const float WaterBlendFactor = 1f - WaterFactor;
+
+    public static Vector3 GetFirstWaterCorner(HexDirection direction)
+    {
+        return corners[(int)direction] * WaterFactor;
+    }
+
+    public static Vector3 GetSecondWaterCorner(HexDirection direction)
+    {
+        return corners[((int)direction + 1) % corners.Length] * WaterFactor;
+    }
+
+    public static Vector3 GetWaterBridge(HexDirection direction)
+    {
+        return (corners[(int)direction] + corners[((int)direction + 1) % corners.Length]) *
+            WaterBlendFactor;
+    }
     #endregion
 }
