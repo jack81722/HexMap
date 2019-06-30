@@ -66,7 +66,10 @@
     <Compile Include="Assets\HexMap\Scripts\HexData\HexCoordinatesDrawer.cs" />
     <Compile Include="Assets\HexMap\Scripts\HexData\HexDirection.cs" />
     <Compile Include="Assets\HexMap\Scripts\HexData\HexEdgeType.cs" />
+    <Compile Include="Assets\HexMap\Scripts\HexData\HexFeatureCollection.cs" />
+    <Compile Include="Assets\HexMap\Scripts\HexData\HexHash.cs" />
     <Compile Include="Assets\HexMap\Scripts\HexData\HexMetrics.cs" />
+    <Compile Include="Assets\HexMap\Scripts\HexFeatureManager.cs" />
     <Compile Include="Assets\HexMap\Scripts\HexGrid.cs" />
     <Compile Include="Assets\HexMap\Scripts\HexGridChunk.cs" />
     <Compile Include="Assets\HexMap\Scripts\HexMapCamera.cs" />

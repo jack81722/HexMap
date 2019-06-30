@@ -17,18 +17,30 @@ public class HexGrid : MonoBehaviour
     public HexGridChunk chunkPrefab;
     public Texture2D noiseSource;
 
-    public HexCell[] cells;
+    private HexCell[] cells;
     private HexGridChunk[] chunks;
+
+    public int seed;
 
     private void Awake()
     {
         HexMetrics.NoiseSource = noiseSource;
+        HexMetrics.InitializeHashGrid(seed);
 
         cellCountX = chunkCountX * HexMetrics.ChunkSizeX;
         cellCountZ = chunkCountZ * HexMetrics.ChunkSizeZ;
 
         createChunks();
         createCells();
+    }
+
+    private void OnEnable()
+    {
+        if (!HexMetrics.NoiseSource)
+        {
+            HexMetrics.NoiseSource = noiseSource;
+            HexMetrics.InitializeHashGrid(seed);
+        }
     }
 
     private void createChunks()
