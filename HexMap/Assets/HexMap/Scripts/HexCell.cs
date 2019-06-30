@@ -130,6 +130,7 @@ public class HexCell : MonoBehaviour
     [SerializeField]
     bool[] roads;
 
+    #region Water properties
     public int WaterLevel
     {
         get
@@ -158,6 +159,45 @@ public class HexCell : MonoBehaviour
     public bool IsUnderwater
     {
         get { return waterLevel > elevation; }
+    }
+    #endregion
+
+    private int urbanLevel, farmLevel, plantLevel;
+    public int UrbanLevel
+    {
+        get { return urbanLevel; }
+        set
+        {
+            if(urbanLevel != value)
+            {
+                urbanLevel = value;
+                refreshSelfOnly();
+            }
+        }
+    }
+    public int FarmLevel
+    {
+        get { return farmLevel; }
+        set
+        {
+            if(farmLevel != value)
+            {
+                farmLevel = value;
+                refreshSelfOnly();
+            }
+        }
+    }
+    public int PlantLevel
+    {
+        get { return plantLevel; }
+        set
+        {
+            if(plantLevel != value)
+            {
+                plantLevel = value;
+                refreshSelfOnly();
+            }
+        }
     }
 
     private void Start()
