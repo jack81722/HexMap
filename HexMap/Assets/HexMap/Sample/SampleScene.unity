@@ -748,6 +748,16 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4259567906643941410, guid: 8bcd50971a429af4db5d967cb723237d,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1738759457229556520, guid: 8bcd50971a429af4db5d967cb723237d,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8bcd50971a429af4db5d967cb723237d, type: 3}
 --- !u!1001 &9209589669660858598
@@ -757,6 +767,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 9209589671260806226, guid: 106afea08a18c2745b3a59dc2cd47bb1,
+        type: 3}
+      propertyPath: m_Name
+      value: Hex Grid
+      objectReference: {fileID: 0}
     - target: {fileID: 9209589671260806227, guid: 106afea08a18c2745b3a59dc2cd47bb1,
         type: 3}
       propertyPath: width
@@ -782,11 +797,6 @@ PrefabInstance:
         type: 3}
       propertyPath: seed
       value: 1234
-      objectReference: {fileID: 0}
-    - target: {fileID: 9209589671260806226, guid: 106afea08a18c2745b3a59dc2cd47bb1,
-        type: 3}
-      propertyPath: m_Name
-      value: Hex Grid
       objectReference: {fileID: 0}
     - target: {fileID: 9209589671260806224, guid: 106afea08a18c2745b3a59dc2cd47bb1,
         type: 3}

@@ -27,6 +27,9 @@ public class HexMapEditor : MonoBehaviour
 
     private bool applyPlantLevel = false;
     private int activePlantLevel;
+
+    private bool applySpecialIndex = false;
+    private int activeSpecialIndex;
     #endregion
 
     private int brushSize;
@@ -141,6 +144,8 @@ public class HexMapEditor : MonoBehaviour
                 cell.RemoveRoads();
             if (walledMode != OptionalToggle.Ignore)
                 cell.Walled = walledMode == OptionalToggle.Yes;
+            if (applySpecialIndex)
+                cell.SpecialIndex = activeSpecialIndex;
             else if (isDrag)
             {
                 HexCell otherCell = cell.GetNeighbor(dragDirection.Opposite());
@@ -238,6 +243,16 @@ public class HexMapEditor : MonoBehaviour
     public void SetWalledMode(int mode)
     {
         walledMode = (OptionalToggle)mode;
+    }
+
+    public void SetApplySpecialIndex (bool toggle)
+    {
+        applySpecialIndex = toggle;
+    }
+
+    public void SetSpecialIndex(float index)
+    {
+        activeSpecialIndex = (int)index;
     }
 }
 

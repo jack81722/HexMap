@@ -822,7 +822,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8596172246107712154}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.9858041, y: 0.24692917, z: 3.1664815}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 943196498443595059}
@@ -871,3 +871,10 @@ MonoBehaviour:
     - {fileID: 6931608960923011822, guid: 570952ef5f3ce78449edf15a99504ecb, type: 3}
     - {fileID: 6931608960923011822, guid: 2c5254de8283ffc459a36bb4ffec5402, type: 3}
   walls: {fileID: 7862201213561333393}
+  wallTower: {fileID: 6885519597872507409, guid: 3f9996994010f3d47b28f20677c4839d,
+    type: 3}
+  bridge: {fileID: 292496687083424138, guid: 79dd9173ca7a2fb46b86d79a48cdf4fb, type: 3}
+  special:
+  - {fileID: 5954675926064524333, guid: 0c8a220bdc3259345b39ed07c662fc6f, type: 3}
+  - {fileID: 5216381521225066063, guid: 8e59b1caabdce8a40af40f80352f10d8, type: 3}
+  - {fileID: 2999867756743885669, guid: 9809c66fdd82ec54ab01939accd30725, type: 3}

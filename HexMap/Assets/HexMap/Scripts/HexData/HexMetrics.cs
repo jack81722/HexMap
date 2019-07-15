@@ -186,9 +186,12 @@ public static class HexMetrics
     }
     #endregion
 
-    public const float WallHeight = 3f;
+    public const float WallHeight = 4f;
+    public const float WallYOffset = -1f;
     public const float WallThickness = 0.75f;
     public const float WallElevationOffset = VerticalTerraceStepSize;
+
+    public const float WallTowerThreshold = 0.5f;
 
     public static Vector3 WallThicknessOffset(Vector3 near, Vector3 far)
     {
@@ -205,7 +208,10 @@ public static class HexMetrics
         near.z += (far.z - near.z) * 0.5f;
         float v =
             near.y < far.y ? WallElevationOffset : (1f - WallElevationOffset);
-        near.y += (far.y - near.y) * v;
+        near.y += (far.y - near.y) * v + WallYOffset;
         return near;
     }
+
+    public const float BridgeDesignLength = 7f;
+
 }
