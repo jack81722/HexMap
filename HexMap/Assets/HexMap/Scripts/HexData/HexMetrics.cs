@@ -45,6 +45,8 @@ public static class HexMetrics
     #endregion
 
     #region Color factors
+    public static Color[] colors;
+
     public const float SolidFactor = 0.8f;
     public const float BlendFactor = 1f - SolidFactor;
 
@@ -186,6 +188,7 @@ public static class HexMetrics
     }
     #endregion
 
+    #region Wall & Bridge
     public const float WallHeight = 4f;
     public const float WallYOffset = -1f;
     public const float WallThickness = 0.75f;
@@ -213,5 +216,6 @@ public static class HexMetrics
     }
 
     public const float BridgeDesignLength = 7f;
+    #endregion
 
 }
