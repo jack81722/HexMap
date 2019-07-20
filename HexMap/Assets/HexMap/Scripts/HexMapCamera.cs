@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class HexMapCamera : MonoBehaviour
 {
+    public static HexMapCamera instance;
+
     public HexGrid grid;
     private Transform swivel, stick;
     public float stickMinZoom, stickMaxZoom;
@@ -15,8 +17,14 @@ public class HexMapCamera : MonoBehaviour
 
     private void Awake()
     {
+        instance = this;
         swivel = transform.GetChild(0);
         stick = swivel.GetChild(0);
+    }
+
+    public static bool Locked
+    {
+        set { instance.enabled = !value; }
     }
 
     private void Start()
@@ -71,12 +79,12 @@ public class HexMapCamera : MonoBehaviour
     private Vector3 clampPosition(Vector3 position)
     {
         float xMax = 
-            (grid.chunkCountX * HexMetrics.ChunkSizeX - 0.5f) * 
+            (grid.cellCountX - 0.5f) * 
             (2f * HexMetrics.InnerRadius);
         position.x = Mathf.Clamp(position.x, 0f, xMax);
 
         float zMax = 
-            (grid.chunkCountZ * HexMetrics.ChunkSizeZ - 1) * 
+            (grid.cellCountZ - 1) * 
             (1.5f * HexMetrics.OuterRadius);
         position.z = Mathf.Clamp(position.z, 0f, zMax);
         return position;
@@ -90,5 +98,10 @@ public class HexMapCamera : MonoBehaviour
         else if (rotationAngle >= 360f)
             rotationAngle -= 360f;
         transform.localRotation = Quaternion.Euler(0f, rotationAngle, 0f);
+    }
+
+    public static void ValidatePosition()
+    {
+        instance.adjustPosition(0f, 0f);
     }
 }

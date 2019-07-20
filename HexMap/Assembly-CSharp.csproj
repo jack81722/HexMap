@@ -76,6 +76,9 @@
     <Compile Include="Assets\HexMap\Scripts\HexMapEditor.cs" />
     <Compile Include="Assets\HexMap\Scripts\HexMesh.cs" />
     <Compile Include="Assets\HexMap\Scripts\ListPool.cs" />
+    <Compile Include="Assets\HexMap\Scripts\NewMapMenu.cs" />
+    <Compile Include="Assets\HexMap\Scripts\SaveLoadItem.cs" />
+    <Compile Include="Assets\HexMap\Scripts\SaveLoadMenu.cs" />
     <Compile Include="Assets\RemoveEmptyFolders.cs" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
