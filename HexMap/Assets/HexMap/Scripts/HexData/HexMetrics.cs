@@ -74,7 +74,7 @@ public static class HexMetrics
             return HexEdgeType.Flat;
         int delta = elevation2 - elevation1;
         if (delta == 1 || delta == -1)
-            return HexEdgeType.Slop;
+            return HexEdgeType.Slope;
         return HexEdgeType.Cliff;
     }
 

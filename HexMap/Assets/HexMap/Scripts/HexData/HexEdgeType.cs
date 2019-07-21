@@ -1,4 +1,4 @@
 ﻿public enum HexEdgeType
 {
-    Flat, Slop, Cliff
+    Flat, Slope, Cliff
 }
