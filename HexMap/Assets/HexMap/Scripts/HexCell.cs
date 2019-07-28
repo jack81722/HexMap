@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using TMPro;
 using UnityEngine;
 
 public class HexCell : MonoBehaviour
@@ -233,6 +234,17 @@ public class HexCell : MonoBehaviour
                 walled = value;
                 refresh();
             }
+        }
+    }
+
+    private int distance;
+    public int Distance
+    {
+        get { return distance; }
+        set
+        {
+            distance = value;
+            UpdateDistanceLabel();
         }
     }
 
@@ -513,4 +525,10 @@ public class HexCell : MonoBehaviour
 
     }
     #endregion
+
+    private void UpdateDistanceLabel()
+    {
+        TextMeshProUGUI label = uiRect.GetComponent<TextMeshProUGUI>();
+        label.text = distance == int.MaxValue ? "" : distance.ToString();
+    }
 }

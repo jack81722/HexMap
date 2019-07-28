@@ -21,7 +21,6 @@ public struct HexCoordinate
         this.z = z;
     }
 
-
     public static HexCoordinate FromOffsetCoordinates(int x, int z)
     {
         return new HexCoordinate(x - z / 2, z);
@@ -67,5 +66,13 @@ public struct HexCoordinate
         }
 
         return new HexCoordinate(iX, iZ);
+    }
+
+    public int DistanceTo(HexCoordinate other)
+    {
+        return 
+            ((x < other.x ? other.x - x : x - other.x) +
+            (Y < other.Y ? other.Y - Y : Y - other.Y) +
+            (z < other.z ? other.z - z : z - other.z)) / 2;
     }
 }

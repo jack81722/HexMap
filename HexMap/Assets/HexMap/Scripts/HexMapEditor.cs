@@ -7,6 +7,9 @@ using UnityEngine.EventSystems;
 public class HexMapEditor : MonoBehaviour
 {   
     public HexGrid hexGrid;
+    public Material terrainMaterial;
+
+    private bool editMode;
 
     private int activeTerrainTypeIndex;
 
@@ -42,6 +45,11 @@ public class HexMapEditor : MonoBehaviour
     private HexDirection dragDirection;
     private HexCell previousCell;
 
+    private void Awake()
+    {
+        terrainMaterial.DisableKeyword("GRID_ON");
+    }
+
     private void Update()
     {
         if (Input.GetMouseButton(0) &&
@@ -66,7 +74,14 @@ public class HexMapEditor : MonoBehaviour
                 validateDrag(currentCell);
             else
                 isDrag = false;
-            editCells(currentCell);
+            if (editMode)
+            {
+                editCells(currentCell);
+            }
+            else
+            {
+                hexGrid.FindDistancesTo(currentCell);
+            }
             previousCell = currentCell;
         }
         else
@@ -167,11 +182,6 @@ public class HexMapEditor : MonoBehaviour
         brushSize = (int)size;
     }
 
-    public void ShowUI(bool visible)
-    {
-        hexGrid.ShowUI(visible);
-    }
-
     public void SetTerrainTypeIndex(int index)
     {
         activeTerrainTypeIndex = index;
@@ -244,7 +254,19 @@ public class HexMapEditor : MonoBehaviour
     }
     #endregion
 
-    
+    public void ShowGrid(bool visible)
+    {
+        if (visible)
+            terrainMaterial.EnableKeyword("GRID_ON");
+        else
+            terrainMaterial.DisableKeyword("GRID_ON");
+    }
+
+    public void SetEditMode(bool toggle)
+    {
+        editMode = toggle;
+        hexGrid.ShowUI(!toggle);
+    }
 }
 
 
