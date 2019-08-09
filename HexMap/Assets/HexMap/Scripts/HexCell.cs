@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HexCell : MonoBehaviour
 {
@@ -248,6 +249,17 @@ public class HexCell : MonoBehaviour
         }
     }
 
+    public HexCell PathFrom { get; set; }
+    public int SearchHeuristic { get; set; }
+    public int SearchPriority
+    {
+        get
+        {
+            return distance + SearchHeuristic;
+        }
+    }
+    public HexCell NextWithSamePriority { get; set; }
+
     private void Start()
     {
         roads = new bool[6];
@@ -309,6 +321,20 @@ public class HexCell : MonoBehaviour
     {
         chunk.Refresh();
     }
+
+    public void DisableHightlight()
+    {
+        Image highlight = uiRect.GetChild(0).GetComponent<Image>();
+        highlight.enabled = false;
+    }
+
+    public void EnableHighlight(Color color)
+    {
+        Image highlight = uiRect.GetChild(0).GetComponent<Image>();
+        highlight.color = color;
+        highlight.enabled = true;
+    }
+
 
     #region Rivers
     public bool HasRiverThroughEdge(HexDirection direction)
