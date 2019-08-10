@@ -245,7 +245,6 @@ public class HexCell : MonoBehaviour
         set
         {
             distance = value;
-            UpdateDistanceLabel();
         }
     }
 
@@ -258,6 +257,7 @@ public class HexCell : MonoBehaviour
             return distance + SearchHeuristic;
         }
     }
+    public int SearchPhase { get; set; }
     public HexCell NextWithSamePriority { get; set; }
 
     private void Start()
@@ -552,9 +552,9 @@ public class HexCell : MonoBehaviour
     }
     #endregion
 
-    private void UpdateDistanceLabel()
+    public void SetLabel(string text)
     {
         TextMeshProUGUI label = uiRect.GetComponent<TextMeshProUGUI>();
-        label.text = distance == int.MaxValue ? "" : distance.ToString();
+        label.text = text;
     }
 }
