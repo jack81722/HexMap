@@ -45,8 +45,6 @@ public static class HexMetrics
     #endregion
 
     #region Color factors
-    public static Color[] colors;
-
     public const float SolidFactor = 0.8f;
     public const float BlendFactor = 1f - SolidFactor;
 

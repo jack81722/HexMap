@@ -95,10 +95,6 @@ public class HexCell : MonoBehaviour
     }
     #endregion
 
-    public Color Color
-    {
-        get { return HexMetrics.colors[terrainTypeIndex]; }
-    }
     public int TerrainTypeIndex
     {
         get { return terrainTypeIndex; }
@@ -124,7 +120,7 @@ public class HexCell : MonoBehaviour
     public HexCell[] neighbors;
 
     [SerializeField]
-    bool[] roads;
+    private bool[] roads;
 
     #region Water properties
     public int WaterLevel
@@ -221,6 +217,7 @@ public class HexCell : MonoBehaviour
     }
     #endregion
 
+    #region Wall properties
     private bool walled;
     public bool Walled
     {
@@ -237,7 +234,9 @@ public class HexCell : MonoBehaviour
             }
         }
     }
+    #endregion
 
+    #region Distance properties
     private int distance;
     public int Distance
     {
@@ -247,7 +246,9 @@ public class HexCell : MonoBehaviour
             distance = value;
         }
     }
+    #endregion
 
+    #region Pathfinding properties
     public HexCell PathFrom { get; set; }
     public int SearchHeuristic { get; set; }
     public int SearchPriority
@@ -259,6 +260,9 @@ public class HexCell : MonoBehaviour
     }
     public int SearchPhase { get; set; }
     public HexCell NextWithSamePriority { get; set; }
+    #endregion
+
+    public HexUnit Unit { get; set; }
 
     private void Start()
     {
@@ -286,7 +290,7 @@ public class HexCell : MonoBehaviour
         cell.neighbors[(int)direction.Opposite()] = this;
     }
 
-    void refresh()
+    private void refresh()
     {
         if (chunk != null)
         {  
@@ -299,10 +303,14 @@ public class HexCell : MonoBehaviour
                     neighbor.chunk.Refresh();
                 }
             }
+            if (Unit)
+            {
+                Unit.ValidateLocation();
+            }
         }
     }
 
-    void refreshPosition()
+    private void refreshPosition()
     {
         Vector3 position = transform.localPosition;
         position.y = elevation * HexMetrics.ElevationStep;
@@ -320,6 +328,10 @@ public class HexCell : MonoBehaviour
     private void refreshSelfOnly()
     {
         chunk.Refresh();
+        if (Unit)
+        {
+            Unit.ValidateLocation();
+        }
     }
 
     public void DisableHightlight()

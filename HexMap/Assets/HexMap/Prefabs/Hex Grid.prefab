@@ -43,13 +43,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6df60bfddf334b74e95133ac378fcdd7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chunkCountX: 4
-  chunkCountZ: 3
-  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  cellCountX: 20
+  cellCountZ: 15
   cellPrefab: {fileID: 3149169069362591429, guid: f57b0e4a51338a54f9d6a5a7bf38e45c,
     type: 3}
   cellLabelPrefab: {fileID: 2687717842773138011, guid: 09a1fb4656876f945a60246316e8234f,
     type: 3}
-  chunkPrefab: {fileID: 0}
-  cells: []
-  noiseSource: {fileID: 0}
+  chunkPrefab: {fileID: 5431936616899097208, guid: 0b0a55a362b716b4d93ef96dc7acbc0d,
+    type: 3}
+  seed: 0
+  noiseSource: {fileID: 2800000, guid: b6911910f3ebb7c4cb70754a48ab8851, type: 3}
+  unitPrefab: {fileID: 4028411240993048275, guid: 977a224b7d8c2054abb7bb64c26d2d54,
+    type: 3}

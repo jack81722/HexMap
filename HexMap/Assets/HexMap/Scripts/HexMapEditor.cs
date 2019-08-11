@@ -9,8 +9,6 @@ public class HexMapEditor : MonoBehaviour
     public HexGrid hexGrid;
     public Material terrainMaterial;
 
-    private bool editMode;
-
     private int activeTerrainTypeIndex;
 
     private bool applyElevation = true;
@@ -43,65 +41,49 @@ public class HexMapEditor : MonoBehaviour
 
     private bool isDrag;
     private HexDirection dragDirection;
-    private HexCell previousCell, searchFromCell, searchToCell;
+    private HexCell previousCell;
 
     private void Awake()
     {
         terrainMaterial.DisableKeyword("GRID_ON");
+        SetEditMode(false);
     }
 
     private void Update()
     {
-        if (Input.GetMouseButton(0) &&
-            !EventSystem.current.IsPointerOverGameObject())
+        if (!EventSystem.current.IsPointerOverGameObject())
         {
-            HandleInput();
+            if (Input.GetMouseButton(0))
+            {
+                HandleInput();
+                return;
+            }
+            if (Input.GetKeyDown(KeyCode.U))
+            {
+                if (Input.GetKey(KeyCode.LeftShift))
+                {
+                    destroyUnit();
+                }
+                else
+                {
+                    createUnit();
+                }
+                return;
+            }
         }
-        else
-        {
-            previousCell = null;
-        }
+        previousCell = null;
     }
 
     private void HandleInput()
     {
-        Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (Physics.Raycast(inputRay, out hit))
+        HexCell currentCell = getCellUnderCursor();
+        if (currentCell)
         {
-            HexCell currentCell = hexGrid.GetCell(hit.point);
             if (previousCell && previousCell != currentCell)
                 validateDrag(currentCell);
             else
                 isDrag = false;
-            if (editMode)
-            {
-                editCells(currentCell);
-            }
-            else if (Input.GetKey(KeyCode.LeftShift) && searchToCell != currentCell)
-            {
-                if (searchFromCell != currentCell)
-                {
-                    if (searchFromCell)
-                    {
-                        searchFromCell.DisableHightlight();
-                    }
-                    searchFromCell = currentCell;
-                    searchFromCell.EnableHighlight(Color.blue);
-                    if (searchToCell)
-                    {
-                        hexGrid.FindPath(searchFromCell, searchToCell, 24);
-                    }
-                }
-            }
-            else if(searchFromCell && searchFromCell != currentCell)
-            {
-                if (searchToCell != currentCell)
-                {
-                    searchToCell = currentCell;
-                    hexGrid.FindPath(searchFromCell, searchToCell, 24);
-                }
-            }
+            editCells(currentCell);
             previousCell = currentCell;
         }
         else
@@ -187,6 +169,32 @@ public class HexMapEditor : MonoBehaviour
         }
     }
 
+    private void createUnit()
+    {
+        HexCell cell = getCellUnderCursor();
+        if (cell && !cell.Unit)
+        {
+            hexGrid.AddUnit(
+                Instantiate(HexUnit.unitPrefab), cell, Random.Range(0f, 360f));
+        }
+    }
+
+    private void destroyUnit()
+    {
+        HexCell cell = getCellUnderCursor();
+        if(cell && cell.Unit)
+        {
+            hexGrid.RemoveUnit(cell.Unit);
+        }
+    }
+
+    private HexCell getCellUnderCursor()
+    {
+        return hexGrid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
+    }
+
+    #region Edit mode set methods
+    #region Elevation/Terrain setting methods
     public void SetApplyElevation(bool toggle)
     {
         applyElevation = toggle;
@@ -197,24 +205,16 @@ public class HexMapEditor : MonoBehaviour
         activeElevation = (int)elevation;
     }
 
-    public void SetBrushSize(float size)
-    {
-        brushSize = (int)size;
-    }
-
     public void SetTerrainTypeIndex(int index)
     {
         activeTerrainTypeIndex = index;
     }
+    #endregion
 
+    #region Water/River setting methods
     public void SetRiverMode(int mode)
     {
         riverMode = (OptionalToggle)mode;
-    }
-
-    public void SetRoadMode(int mode)
-    {
-        roadMode = (OptionalToggle)mode;
     }
 
     public void SetApplyWaterLevel(bool toggle)
@@ -226,6 +226,7 @@ public class HexMapEditor : MonoBehaviour
     {
         activeWaterLevel = (int)level;
     }
+    #endregion
 
     #region Feature setting methods
     public void SetApplyUrbanLevel(bool toggle)
@@ -274,6 +275,16 @@ public class HexMapEditor : MonoBehaviour
     }
     #endregion
 
+    public void SetBrushSize(float size)
+    {
+        brushSize = (int)size;
+    }
+
+    public void SetRoadMode(int mode)
+    {
+        roadMode = (OptionalToggle)mode;
+    }
+
     public void ShowGrid(bool visible)
     {
         if (visible)
@@ -284,9 +295,9 @@ public class HexMapEditor : MonoBehaviour
 
     public void SetEditMode(bool toggle)
     {
-        editMode = toggle;
-        hexGrid.ShowUI(!toggle);
+        enabled = toggle;
     }
+    #endregion
 }
 
 

@@ -71,11 +71,13 @@
     <Compile Include="Assets\HexMap\Scripts\HexData\HexHash.cs" />
     <Compile Include="Assets\HexMap\Scripts\HexData\HexMetrics.cs" />
     <Compile Include="Assets\HexMap\Scripts\HexFeatureManager.cs" />
+    <Compile Include="Assets\HexMap\Scripts\HexGameUI.cs" />
     <Compile Include="Assets\HexMap\Scripts\HexGrid.cs" />
     <Compile Include="Assets\HexMap\Scripts\HexGridChunk.cs" />
     <Compile Include="Assets\HexMap\Scripts\HexMapCamera.cs" />
     <Compile Include="Assets\HexMap\Scripts\HexMapEditor.cs" />
     <Compile Include="Assets\HexMap\Scripts\HexMesh.cs" />
+    <Compile Include="Assets\HexMap\Scripts\HexUnit.cs" />
     <Compile Include="Assets\HexMap\Scripts\ListPool.cs" />
     <Compile Include="Assets\HexMap\Scripts\NewMapMenu.cs" />
     <Compile Include="Assets\HexMap\Scripts\SaveLoadItem.cs" />

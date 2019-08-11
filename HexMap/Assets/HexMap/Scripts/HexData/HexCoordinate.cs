@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using System.IO;
 
 [System.Serializable]
 public struct HexCoordinate
@@ -35,7 +33,7 @@ public struct HexCoordinate
     {
         return X.ToString() + "\n" + Y.ToString() + "\n" + Z.ToString();
     }
-
+    
     public static HexCoordinate FromPosition(Vector3 position)
     {
         float x = position.x / (HexMetrics.InnerRadius * 2f);
@@ -75,4 +73,20 @@ public struct HexCoordinate
             (Y < other.Y ? other.Y - Y : Y - other.Y) +
             (z < other.z ? other.z - z : z - other.z)) / 2;
     }
+
+    #region Save/Load methods
+    public void Save(BinaryWriter writer)
+    {
+        writer.Write(x);
+        writer.Write(z);
+    }
+
+    public static HexCoordinate Load(BinaryReader reader)
+    {
+        HexCoordinate c;
+        c.x = reader.ReadInt32();
+        c.z = reader.ReadInt32();
+        return c;
+    }
+    #endregion
 }
