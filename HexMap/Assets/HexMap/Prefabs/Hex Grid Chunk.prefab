@@ -46,10 +46,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useCollider: 0
-  useColors: 0
+  useCellData: 1
   useUVCoordinates: 1
   useUV2Coordinates: 0
-  useTerrainTypes: 0
 --- !u!33 &3788997435610815595
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -141,10 +140,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useCollider: 0
-  useColors: 0
+  useCellData: 1
   useUVCoordinates: 0
   useUV2Coordinates: 0
-  useTerrainTypes: 0
 --- !u!33 &6481100085292179561
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -236,10 +234,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useCollider: 1
-  useColors: 1
+  useCellData: 1
   useUVCoordinates: 0
   useUV2Coordinates: 0
-  useTerrainTypes: 1
 --- !u!33 &5368481803720863222
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -331,10 +328,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useCollider: 0
-  useColors: 0
+  useCellData: 1
   useUVCoordinates: 1
   useUV2Coordinates: 0
-  useTerrainTypes: 0
 --- !u!33 &1392638959128110136
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -426,10 +422,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useCollider: 0
-  useColors: 0
+  useCellData: 1
   useUVCoordinates: 0
   useUV2Coordinates: 0
-  useTerrainTypes: 0
 --- !u!33 &5930276877606394216
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -521,10 +516,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useCollider: 0
-  useColors: 0
+  useCellData: 1
   useUVCoordinates: 1
   useUV2Coordinates: 1
-  useTerrainTypes: 0
 --- !u!33 &7947835267266323935
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -675,10 +669,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useCollider: 0
-  useColors: 0
+  useCellData: 1
   useUVCoordinates: 1
   useUV2Coordinates: 0
-  useTerrainTypes: 0
 --- !u!33 &4011711634292545723
 MeshFilter:
   m_ObjectHideFlags: 0

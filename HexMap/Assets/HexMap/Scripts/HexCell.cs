@@ -103,7 +103,7 @@ public class HexCell : MonoBehaviour
             if(terrainTypeIndex != value)
             {
                 terrainTypeIndex = value;
-                refresh();
+                ShaderData.RefreshTerrain(this);
             }
         }
     }
@@ -263,6 +263,18 @@ public class HexCell : MonoBehaviour
     #endregion
 
     public HexUnit Unit { get; set; }
+
+    public HexCellShaderData ShaderData { get; set; }
+    public int Index { get; set; }
+
+    public bool IsVisible
+    {
+        get
+        {
+            return visibility > 0;
+        }
+    }
+    int visibility;
 
     private void Start()
     {
@@ -525,6 +537,7 @@ public class HexCell : MonoBehaviour
     public void Load(BinaryReader reader)
     {
         terrainTypeIndex = reader.ReadByte();
+        ShaderData.RefreshTerrain(this);
         elevation = reader.ReadByte();
         refreshPosition();
         waterLevel = reader.ReadByte();
@@ -568,5 +581,23 @@ public class HexCell : MonoBehaviour
     {
         TextMeshProUGUI label = uiRect.GetComponent<TextMeshProUGUI>();
         label.text = text;
+    }
+
+    public void IncreaseVisibility()
+    {
+        visibility++;
+        if(visibility == 1)
+        {
+            ShaderData.RefreshVisibility(this);
+        }
+    }
+
+    public void DecreaseVisibility()
+    {
+        visibility--;
+        if(visibility == 0)
+        {
+            ShaderData.RefreshVisibility(this);
+        }
     }
 }
