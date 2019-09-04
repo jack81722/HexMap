@@ -481,7 +481,9 @@ public class HexGridChunk : MonoBehaviour
 
         Vector3 mL = Vector3.Lerp(roadCenter, e.v1, interpolators.x);
         Vector3 mR = Vector3.Lerp(roadCenter, e.v5, interpolators.y);
-        triangulateRoad(roadCenter, mL, mR, e, hasRoadThroughEdge, cell.Index);
+        bool previousUnderwater = cell.GetNeighbor(direction.Previous()).IsUnderwater;
+        bool nextUnderwater = cell.GetNeighbor(direction.Next()).IsUnderwater;
+        triangulateRoad(roadCenter, mL, mR, e, hasRoadThroughEdge, cell.Index);        
         if (previousHasRiver)
         {
             triangulateRoadEdge(roadCenter, center, mL, cell.Index);
