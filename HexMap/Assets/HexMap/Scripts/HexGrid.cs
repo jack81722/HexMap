@@ -10,6 +10,7 @@ public class HexGrid : MonoBehaviour
     #region Cell fields
     private int chunkCountX, chunkCountZ;
     public int cellCountX = 20, cellCountZ = 15;
+    [HideInInspector]
     public HexCell[] cells;
     private HexGridChunk[] chunks;
     #endregion
