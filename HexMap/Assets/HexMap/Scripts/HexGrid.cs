@@ -272,6 +272,15 @@ public class HexGrid : MonoBehaviour
         ShowPath(unit.Speed);
     }
 
+    public void FindPath(HexCell fromCell, HexCell toCell, int speed)
+    {
+        ClearPath();
+        currentPathFrom = fromCell;
+        currentPathTo = toCell;
+        currentPathExists = Search(fromCell, toCell, speed);
+        ShowPath(speed);
+    }
+
     private bool Search(HexCell fromCell, HexCell toCell, HexUnit unit)
     {
         int speed = unit.Speed;
@@ -335,6 +344,96 @@ public class HexGrid : MonoBehaviour
             }
         }
         return false;
+    }
+
+    private bool Search(HexCell fromCell, HexCell toCell, int speed)
+    {
+        searchFrontierPhase += 2;
+        if (searchFrontier == null)
+            searchFrontier = new HexCellPriorityQueue();
+        else
+            searchFrontier.Clear();
+
+        fromCell.SearchPhase = searchFrontierPhase;
+        fromCell.Distance = 0;
+        searchFrontier.Enqueue(fromCell);
+        while (searchFrontier.Count > 0)
+        {
+            HexCell current = searchFrontier.Dequeue();
+            current.SearchPhase += 1;
+            if (current == toCell)
+            {
+                return true;
+            }
+
+            int currentTurn = (current.Distance - 1) / speed;
+
+            for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+            {
+                HexCell neighbor = current.GetNeighbor(d);
+                if (neighbor == null ||
+                    neighbor.SearchPhase > searchFrontierPhase)
+                    continue;
+                // cell.IsExplored && !cell.IsUnderwater && !cell.Unit
+                if (!(neighbor.IsExplored && !neighbor.IsUnderwater))
+                {
+                    continue;
+                }
+                int moveCost = GetMoveCost(current, neighbor, d);
+                if (moveCost < 0)
+                    continue;
+
+                int distance = current.Distance + moveCost;
+                int turn = (distance - 1) / speed;
+                if (turn > currentTurn)
+                {
+                    distance = turn * speed + moveCost;
+                }
+
+                if (neighbor.SearchPhase < searchFrontierPhase)
+                {
+                    neighbor.SearchPhase = searchFrontierPhase;
+                    neighbor.Distance = distance;
+                    neighbor.PathFrom = current;
+                    neighbor.SearchHeuristic = neighbor.coordinate.DistanceTo(toCell.coordinate);
+                    searchFrontier.Enqueue(neighbor);
+                }
+                else if (distance < neighbor.Distance)
+                {
+                    int oldPriority = neighbor.SearchPriority;
+                    neighbor.Distance = distance;
+                    neighbor.PathFrom = current;
+                    searchFrontier.Change(neighbor, oldPriority);
+                }
+            }
+        }
+        return false;
+    }
+
+    public int GetMoveCost(
+        HexCell fromCell, HexCell toCell, HexDirection direction)
+    {
+        HexEdgeType edgeType = fromCell.GetEdgeType(toCell);
+        if (edgeType == HexEdgeType.Cliff)
+        {
+            return -1;
+        }
+        int moveCost;
+        if (fromCell.HasRoadThroughEdge(direction))
+        {
+            moveCost = 1;
+        }
+        else if (fromCell.Walled != toCell.Walled)
+        {
+            return -1;
+        }
+        else
+        {
+            moveCost = edgeType == HexEdgeType.Flat ? 5 : 10;
+            moveCost +=
+                toCell.UrbanLevel + toCell.FarmLevel + toCell.PlantLevel;
+        }
+        return moveCost;
     }
 
     public List<HexCell> GetPath()

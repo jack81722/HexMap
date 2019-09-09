@@ -23,10 +23,10 @@ public class HexMapManager : MonoBehaviour
         if (loadOnStart && !string.IsNullOrEmpty(mapFilePath))
         {
             Load(mapFilePath);
-            hexGrid.AddUnit(
-                Instantiate(HexUnit.unitPrefab), 
-                hexGrid.GetCell(new HexCoordinate(hexGrid.cellCountX / 2, hexGrid.cellCountZ / 2)), 
-                0);
+            //hexGrid.AddUnit(
+            //    Instantiate(HexUnit.unitPrefab), 
+            //    hexGrid.GetCell(new HexCoordinate(hexGrid.cellCountX / 2, hexGrid.cellCountZ / 2)), 
+            //    0);
         }
         
     }

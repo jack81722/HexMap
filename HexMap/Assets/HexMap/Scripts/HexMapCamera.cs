@@ -102,6 +102,7 @@ public class HexMapCamera : MonoBehaviour
 
     public static void ValidatePosition()
     {
-        instance.adjustPosition(0f, 0f);
+        if(instance != null)
+            instance.adjustPosition(0f, 0f);
     }
 }

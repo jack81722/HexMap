@@ -149,6 +149,8 @@
     <Compile Include="Assets\HexMap\Scripts\SaveLoadItem.cs" />
     <Compile Include="Assets\HexMap\Scripts\SaveLoadMenu.cs" />
     <Compile Include="Assets\HexMap\Scripts\TextureArrayWizard.cs" />
+    <Compile Include="Assets\Prototype\Scripts\Chess.cs" />
+    <Compile Include="Assets\Prototype\Scripts\ChessManager.cs" />
     <Compile Include="Assets\Prototype\Scripts\HexMapManager.cs" />
     <Compile Include="Assets\Prototype\Scripts\HexMapManagerEditor.cs" />
     <Compile Include="Assets\Teach\Bullet.cs" />
