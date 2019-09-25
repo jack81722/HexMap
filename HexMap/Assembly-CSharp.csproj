@@ -153,6 +153,7 @@
     <Compile Include="Assets\Prototype\Scripts\ChessManager.cs" />
     <Compile Include="Assets\Prototype\Scripts\HexMapManager.cs" />
     <Compile Include="Assets\Prototype\Scripts\HexMapManagerEditor.cs" />
+    <Compile Include="Assets\Prototype\Scripts\IHexUnit.cs" />
     <Compile Include="Assets\Teach\Bullet.cs" />
     <Compile Include="Assets\Teach\Player.cs" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />

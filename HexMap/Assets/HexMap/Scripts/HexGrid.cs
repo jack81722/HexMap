@@ -4,6 +4,7 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 public class HexGrid : MonoBehaviour
 {
@@ -107,6 +108,16 @@ public class HexGrid : MonoBehaviour
         for (int z = 0, i = 0; z < cellCountZ; z++)
             for (int x = 0; x < cellCountX; x++)
                 createCell(x, z, i++);
+    }
+
+    public IEnumerable<HexCell> GetAllCells()
+    {
+        return cells;
+    }
+
+    public IEnumerable<HexCell> GetAllValidCells()
+    {
+        return cells.Where(cell => !cell.IsSpecial && !cell.IsUnderwater);
     }
 
     public HexCell GetCell(Vector3 position)
@@ -452,7 +463,7 @@ public class HexGrid : MonoBehaviour
         return path;
     }
 
-    private void ShowPath(int speed)
+    public void ShowPath(int speed)
     {
         if (currentPathExists)
         {
@@ -516,7 +527,117 @@ public class HexGrid : MonoBehaviour
         units.Clear();
     }
 
-    private List<HexCell> GetVisibleCells(HexCell fromCell, int range)
+    public List<HexCell> GetReachableCells(HexCell fromCell, int actionPoint)
+    {
+        List<HexCell> visibleCells = ListPool<HexCell>.Get();
+
+        searchFrontierPhase += 2;
+        if (searchFrontier == null)
+            searchFrontier = new HexCellPriorityQueue();
+        else
+            searchFrontier.Clear();
+
+        fromCell.SearchPhase = searchFrontierPhase;
+        fromCell.Distance = 0;
+        searchFrontier.Enqueue(fromCell);
+        while (searchFrontier.Count > 0)
+        {
+            HexCell current = searchFrontier.Dequeue();
+            current.SearchPhase += 1;
+            visibleCells.Add(current);
+
+            for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+            {
+                HexCell neighbor = current.GetNeighbor(d);
+                if (neighbor == null ||
+                    neighbor.SearchPhase > searchFrontierPhase)
+                    continue;
+
+                if (!(neighbor.IsExplored && !neighbor.IsUnderwater))
+                {
+                    continue;
+                }
+
+                int moveCost = GetMoveCost(current, neighbor, d);
+                if (moveCost < 0)
+                    continue;
+
+                int distance = current.Distance + moveCost;
+                if (distance > actionPoint)
+                    continue;
+
+                if (neighbor.SearchPhase < searchFrontierPhase)
+                {
+                    neighbor.SearchPhase = searchFrontierPhase;
+                    neighbor.Distance = distance;
+                    neighbor.SearchHeuristic = 0;
+                    searchFrontier.Enqueue(neighbor);
+                }
+                else if (distance < neighbor.Distance)
+                {
+                    int oldPriority = neighbor.SearchPriority;
+                    neighbor.Distance = distance;
+                    searchFrontier.Change(neighbor, oldPriority);
+                }
+            }
+        }
+        return visibleCells;
+    }
+
+    public List<HexCell> GetAttackableCells(HexCell fromCell, int atkRange)
+    {
+        List<HexCell> visibleCells = ListPool<HexCell>.Get();
+
+        searchFrontierPhase += 2;
+        if (searchFrontier == null)
+            searchFrontier = new HexCellPriorityQueue();
+        else
+            searchFrontier.Clear();
+
+        fromCell.SearchPhase = searchFrontierPhase;
+        fromCell.Distance = 0;
+        searchFrontier.Enqueue(fromCell);
+        while (searchFrontier.Count > 0)
+        {
+            HexCell current = searchFrontier.Dequeue();
+            current.SearchPhase += 1;
+            visibleCells.Add(current);
+
+            for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+            {
+                HexCell neighbor = current.GetNeighbor(d);
+                if (neighbor == null ||
+                    neighbor.SearchPhase > searchFrontierPhase)
+                    continue;
+
+                if (!(neighbor.IsExplored && !neighbor.IsUnderwater))
+                {
+                    continue;
+                }
+
+                int distance = current.Distance + 1;
+                if (distance > atkRange)
+                    continue;
+
+                if (neighbor.SearchPhase < searchFrontierPhase)
+                {
+                    neighbor.SearchPhase = searchFrontierPhase;
+                    neighbor.Distance = distance;
+                    neighbor.SearchHeuristic = 0;
+                    searchFrontier.Enqueue(neighbor);
+                }
+                else if (distance < neighbor.Distance)
+                {
+                    int oldPriority = neighbor.SearchPriority;
+                    neighbor.Distance = distance;
+                    searchFrontier.Change(neighbor, oldPriority);
+                }
+            }
+        }
+        return visibleCells;
+    }
+
+    public List<HexCell> GetVisibleCells(HexCell fromCell, int range)
     {
         List<HexCell> visibleCells = ListPool<HexCell>.Get();
 

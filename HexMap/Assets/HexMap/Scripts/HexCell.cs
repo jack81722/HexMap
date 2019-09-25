@@ -265,6 +265,7 @@ public class HexCell : MonoBehaviour
     #endregion
 
     public HexUnit Unit { get; set; }
+    public IHexUnit iUnit { get; set; }
 
     public HexCellShaderData ShaderData { get; set; }
     public int Index { get; set; }
@@ -451,6 +452,8 @@ public class HexCell : MonoBehaviour
     #region Roads
     public bool HasRoadThroughEdge(HexDirection direction)
     {
+        if (roads == null || roads.Length != 6)
+            roads = new bool[6];
         return roads[(int)direction];
     }
 
@@ -604,6 +607,19 @@ public class HexCell : MonoBehaviour
         if(visibility == 0)
         {
             ShaderData.RefreshVisibility(this);
+        }
+    }
+
+    public HexDirection GetNeighborDirection(HexCell neighbor)
+    {
+        int index = Array.IndexOf(neighbors, neighbor);
+        if(index >= 0)
+        {
+            return (HexDirection)index;
+        }
+        else
+        {
+            return (HexDirection)(-1);
         }
     }
 }
