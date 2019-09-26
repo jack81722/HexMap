@@ -5,6 +5,7 @@ using UnityEngine;
 public class Chess : MonoBehaviour, IHexUnit
 {
     public int Group { get; set; }
+    public JobClass Job { get; set; }
 
     public int speed;
     public int Speed { get { return speed; } }
@@ -56,8 +57,24 @@ public class Chess : MonoBehaviour, IHexUnit
     private int actionPoint;
     public int ActionPoint { get { return actionPoint; } set { actionPoint = value; } }
 
-    public int HitPoint { get; set; }
-    public int Attack { get; set; }
+
+    public bool IsAlive { get { return hitPoint > 0; } }
+    [SerializeField]
+    private int hitPoint;
+    public int HitPoint
+    {
+        get { return hitPoint; }
+        set
+        {
+            hitPoint = value;
+            if (hitPoint < 0)
+                hitPoint = 0;
+        }
+    }
+
+    [SerializeField]
+    private int attack;
+    public int Attack { get { return attack; } set { attack = value; } }
 
     private void LateUpdate()
     {

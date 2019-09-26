@@ -46,6 +46,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 24
   visionRange: 5
+  agility: 0
+  actionProcess: 0
+  actionPoint: 0
+  hitPoint: 5
+  attack: 6
 --- !u!1 &4969084547560551808
 GameObject:
   m_ObjectHideFlags: 0

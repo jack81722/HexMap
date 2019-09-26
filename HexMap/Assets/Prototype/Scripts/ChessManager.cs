@@ -29,6 +29,9 @@ public class ChessManager : MonoBehaviour
     public bool attackAim;
     public List<HexCell> currentUnitAttackableCells;
 
+    public UnitInformation unitInfo;
+    public SkillButton skillButton;
+
     private void Start()
     {
         unitQueue = new List<IHexUnit>();
@@ -47,10 +50,14 @@ public class ChessManager : MonoBehaviour
                 chess.Group = 1;
                 chess.GetComponentInChildren<MeshRenderer>().material = Enemy_Material;
             }
+            if (i % 2 == 0)
+                chess.Job = JobClass.Gunner;
+
             unitQueue.Add(chess);
         }
         
         refreshActionQueue();
+        SelectUnit(unitQueue[0]);
     }
 
     public Chess CreateUnit(HexCell cell)
@@ -64,6 +71,12 @@ public class ChessManager : MonoBehaviour
         return chess;
     }
 
+    public void DestroyUnit(IHexUnit unit)
+    {
+        unit.transform.gameObject.SetActive(false);     // 隱藏該棋子
+        unit.Location.iUnit = null;                     // 格子上抹除棋子的資料
+    }
+    
     private void Update()
     {   
         HexCell cell = hexGrid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));  // 先找到指標只到的地圖格
@@ -72,7 +85,8 @@ public class ChessManager : MonoBehaviour
             if (cell != null && cell.iUnit != null)
             {
                 // select
-                selectedUnit = cell.iUnit;
+                //selectedUnit = cell.iUnit;
+                SelectUnit(cell.iUnit);
             }
             else
             {
@@ -87,12 +101,13 @@ public class ChessManager : MonoBehaviour
 
             if (attackAim)
             {
-                if (cell.iUnit != null &&                       // 如果選擇的格子上有棋子 且
-                    cell.iUnit.Group != currentUnit.Group &&    // 如果該格的棋子與當前行動的棋子隊伍(group)不同時
-                    currentUnitAttackableCells.Contains(cell))  // 確認該格子是否在可攻擊的格子群(array)中
+                if (cell.iUnit != null &&                           // 如果選擇的格子上有棋子 且
+                    cell.iUnit.Group != currentUnit.Group &&        // 如果該格的棋子與當前行動的棋子隊伍(group)不同時
+                    currentUnitAttackableCells.Contains(cell) &&    // 確認該格子是否在可攻擊的格子群(array)中
+                    cell.iUnit.IsAlive)                             // 確認該棋子是否活著
                 {
                     // 進行攻擊
-                    Debug.Log("Attack");
+                    Attack(currentUnit, cell.iUnit);
                     currentUnit.ActionPoint = 0;
                     refreshActionQueue();
                 }
@@ -161,6 +176,18 @@ public class ChessManager : MonoBehaviour
     //    }
     //}
 
+    private void SetSkillButton(IHexUnit unit)
+    {
+        //if (skillButton != null)
+            skillButton.SetJobClass(unit.Job);
+    }
+
+    private void ShowUnitInfo(IHexUnit unit)
+    {
+        if (unitInfo != null)
+            unitInfo.ShowUnitInfo(unit);
+    }
+
     // 標記可移動的所有地圖格
     private void markReachableCells(HexCell cell)
     {
@@ -227,24 +254,34 @@ public class ChessManager : MonoBehaviour
     }
 
     private void refreshActionQueue()
-    {   
+    {
+        // 排序最快滿進度條的棋子
         unitQueue.Sort((unitA, unitB) =>
         {
             return remain(unitA) - remain(unitB);
         });
+        // 重新整理頭像順序
         refreshHeadQueue(unitQueue);
+
+
+        // 指定滿進度條的棋子為行動者
         setChessAction(unitQueue[0]);
+        // 扣除行動條值
         float time = remainTime(currentUnit);
-        for(int i = 0; i < unitQueue.Count; i++)
+        for (int i = 0; i < unitQueue.Count; i++)
         {
             IHexUnit unit = unitQueue[i];
             unit.ActionProcess = (unit.ActionProcess + time * unit.Agility);
         }
+        // 行動值滿後-100
         currentUnit.ActionProcess %= 100;
+
 
         // remain time of next action
         int remain(IHexUnit unit)
         {
+            if (!unit.IsAlive)
+                return int.MaxValue;
             return (int)((100 - unit.ActionProcess) / unit.Agility) * 100;
         }
 
@@ -269,23 +306,34 @@ public class ChessManager : MonoBehaviour
         currentUnitReachableCells = hexGrid.GetReachableCells(currentUnit.Location,currentUnit.Speed);
     }
 
+    // 重新整理頭像排序
     private void refreshHeadQueue(IList<IHexUnit> queue)
     {
         for(int i = 0; i < heads.Length; i++)
         {
-            Chess unit = (Chess)queue[i];
+            IHexUnit unit = queue[i];
             heads[i].GetComponentInChildren<TextMeshProUGUI>().text = unit.name.Split(' ')[1];
             Button botton = heads[i].GetComponent<Button>();
-            botton.onClick.RemoveAllListeners();
-            botton.onClick.AddListener(() => 
+            if (unit.IsAlive)
             {
-                SelectUnit(unit);
-                if(unit == currentUnit)
-                    markReachableCells(unit.Location);
-            });
+                botton.interactable = true;
+                botton.onClick.RemoveAllListeners();
+                botton.onClick.AddListener(() =>
+                {
+                    SelectUnit(unit);
+                    if (unit == currentUnit)
+                        markReachableCells(unit.Location);
+                });
+            }
+            else
+            {
+                // 把按鈕的可控性關閉
+                botton.interactable = false;
+            }
         }
     }
 
+    // 選擇腳色
     public void SelectUnit(IHexUnit unit)
     {   
         selectedUnit = unit;
@@ -293,6 +341,9 @@ public class ChessManager : MonoBehaviour
             selectedUnit.Location.EnableHighlight(new Color(1, 0, 0, 0.4f));
         cameraBrain.ActiveVirtualCamera.LookAt = unit.transform;
         cameraBrain.ActiveVirtualCamera.Follow = unit.transform;
+
+        ShowUnitInfo(unit);
+        SetSkillButton(unit);
     }
 
     private void Shuffle<T>(List<T> list)
@@ -326,5 +377,12 @@ public class ChessManager : MonoBehaviour
         SelectUnit(currentUnit);
         SearchAttackableCells(currentUnit, atkRange);
         attackAim = true;
+    }
+
+    private void Attack(IHexUnit attacker, IHexUnit defender)
+    {
+        defender.HitPoint -= attacker.Attack;
+        if (!defender.IsAlive)
+            DestroyUnit(defender);
     }
 }
