@@ -1,12 +1,15 @@
 ﻿using Cinemachine;
+using HexGame.Packets;
+using Network.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class ChessManager : MonoBehaviour
+public partial class ChessManager : MonoBehaviour, IChessManager
 {
     public HexGrid hexGrid;
     public Chess chessPrefab;
@@ -14,60 +17,57 @@ public class ChessManager : MonoBehaviour
     public CinemachineBrain cameraBrain;
 
     // 被選擇的棋子
-    private IHexUnit selectedUnit;
-    private HexCell currentCell;
     private Coroutine movingCoroutine;
     private List<HexCell> path;
 
     private List<IHexUnit> unitQueue;
-    private IHexUnit currentUnit;
+    public IHexUnit CurrentUnit { get; private set; }
     private List<HexCell> currentUnitReachableCells;        // 可移動到的所有地圖格
 
-    public RectTransform[] heads;
+    public HeadQueue headQueue;
+    public SkillList skillList;
 
-    // 瞄準狀態
-    public bool attackAim;
-    public List<HexCell> currentUnitAttackableCells;
+    public LineRenderer line;
+    public GameObject pointPrefab;
+    private List<GameObject> points = new List<GameObject>();
 
     public UnitInformation unitInfo;
-    public SkillButton skillButton;
+
+    private Dictionary<int, IPlayer> players = new Dictionary<int, IPlayer>();
+
+    public List<ChessAbility> chessAbilities;
 
     private void Start()
-    {
+    {   
         unitQueue = new List<IHexUnit>();
         currentUnitReachableCells = new List<HexCell>();
-        currentUnitAttackableCells = new List<HexCell>();
 
-        List<HexCell> allCells = new List<HexCell>(hexGrid.GetAllValidCells());
-        Shuffle(allCells);
-        for (int i = 0; i < 10; i++)
-        {
-            var chess = CreateUnit(allCells[i]);
-            chess.name = "Chess " + (char)('A' + i);
-            chess.Agility = i * 0.1f + 1;
-            if (i > 4)
-            {
-                chess.Group = 1;
-                chess.GetComponentInChildren<MeshRenderer>().material = Enemy_Material;
-            }
-            if (i % 2 == 0)
-                chess.Job = JobClass.Gunner;
-
-            unitQueue.Add(chess);
-        }
+        HexCoordinate center = new HexCoordinate(hexGrid.cellCountX / 8, hexGrid.cellCountZ / 8);
         
+        List<HexCell> groupACells = new List<HexCell>(hexGrid.GetCellsInRange(hexGrid.GetCell(center), 3, (cell) => !cell.IsUnderwater));
+        Shuffle(groupACells);
+
+        for (int i = 0; i < chessAbilities.Count; i++)
+        {
+            var chess = CreateUnit(groupACells[i], chessAbilities[i]);
+            unitQueue.Add(chess);
+            _units.Add(chess.Id, chess);
+        }
+
         refreshActionQueue();
-        SelectUnit(unitQueue[0]);
+
     }
 
-    public Chess CreateUnit(HexCell cell)
+    public Chess CreateUnit(HexCell cell, ChessAbility ability)
     {   
-        var chess = Instantiate(chessPrefab);
+        Chess chess = Instantiate(chessPrefab);
         
         chess.transform.SetParent(transform);
         chess.Grid = hexGrid;
         chess.Location = cell;
-        
+
+        chess.SetAbility(ability);
+
         return chess;
     }
 
@@ -77,128 +77,103 @@ public class ChessManager : MonoBehaviour
         unit.Location.iUnit = null;                     // 格子上抹除棋子的資料
     }
     
-    private void Update()
-    {   
-        HexCell cell = hexGrid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));  // 先找到指標只到的地圖格
-        if (Input.GetMouseButtonDown(0))
-        {   
-            if (cell != null && cell.iUnit != null)
-            {
-                // select
-                //selectedUnit = cell.iUnit;
-                SelectUnit(cell.iUnit);
-            }
-            else
-            {
-                // clear
-                //skipMoving();
-                cancelSelect();
-            }
-        }
-        else if (Input.GetMouseButtonDown(1))
+    public void RegisterPlayer(IPlayer player)
+    {
+        if (!players.ContainsKey(player.Group))
         {
-            // 點擊右鍵
-
-            if (attackAim)
-            {
-                if (cell.iUnit != null &&                           // 如果選擇的格子上有棋子 且
-                    cell.iUnit.Group != currentUnit.Group &&        // 如果該格的棋子與當前行動的棋子隊伍(group)不同時
-                    currentUnitAttackableCells.Contains(cell) &&    // 確認該格子是否在可攻擊的格子群(array)中
-                    cell.iUnit.IsAlive)                             // 確認該棋子是否活著
-                {
-                    // 進行攻擊
-                    Attack(currentUnit, cell.iUnit);
-                    currentUnit.ActionPoint = 0;
-                    refreshActionQueue();
-                }
-            }
-            else
-            {
-                if (selectedUnit == currentUnit && 
-                    currentUnitReachableCells.Contains(cell) && cell.iUnit == null)
-                {
-                    // 執行移動指令
-                    int moveCost = Move(selectedUnit, cell, (cost) =>
-                    {
-                    // 扣除移動的行動點數
-                    if (cost >= 0)
-                            selectedUnit.ActionPoint -= cost;
-                        else
-                        {
-                        // do something ...
-                    }
-                    // 判斷是否有剩餘的行動點數
-                    if (selectedUnit.ActionPoint <= 0)
-                        {
-                        // 耗完行動點數則重新整理行動排序
-                        refreshActionQueue();
-                        }
-                    });
-
-                }
-            }
+            players.Add(player.Group, player);
         }
         else
         {
-            if(selectedUnit == currentUnit && !attackAim)
-            {
-                markReachableCells(cell);
-            }
+            Debug.LogError($"Specific player of group[{player.Group}] has been existed.");
         }
     }
 
-    private void cancelSelect()
+    public void UnegisterPlayer(IPlayer player)
     {
-        if (selectedUnit != null)
-        {
-            selectedUnit.Location.DisableHightlight();
-            selectedUnit = null;
-        }
-        foreach (var c in currentUnitReachableCells)
-        {
-            c.DisableHightlight();
-        }
-        hexGrid.ClearPath();
-        attackAim = false;
+        players.Remove(player.Group);
     }
 
-    //private void skipMoving()
+    //private void Update()
     //{   
-    //    if (movingCoroutine != null)
+    //    HexCell cell = hexGrid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition), out cursorPosition);  // 先找到指標只到的地圖格
+    //    if (Input.GetMouseButtonDown(0))
+    //    {   
+    //        if (cell != null && cell.iUnit != null)
+    //        {
+    //            // select
+    //            SelectUnit(cell.iUnit);
+    //        }
+    //        else
+    //        {
+    //            // clear
+    //            CancelSelect();
+    //            CancelAim();
+    //        }
+    //    }
+    //    else if (Input.GetMouseButtonDown(1))
     //    {
-    //        StopCoroutine(movingCoroutine);
-    //        HexCell goal = path[path.Count - 1];
-    //        selectedUnit.Location = goal;
-    //        selectedUnit = null;
-    //        hexGrid.ClearPath();
-    //        movingCoroutine = null;
-    //        refreshActionQueue();
+    //        // 點擊右鍵
+
+    //        if (attackAim)
+    //        {
+    //            if (currentUnitAttackableCells.Contains(cell))    // 確認該格子是否在可攻擊的格子群(array)中
+    //            {
+    //                // 進行攻擊
+    //                attack(CurrentUnit, cell.iUnit);
+    //                CurrentUnit.ActionPoint = 0;
+    //                refreshActionQueue();
+    //            }
+    //        }
+    //        else
+    //        {
+    //            if (selectedUnit == CurrentUnit && 
+    //                currentUnitReachableCells.Contains(cell) && cell.iUnit == null)
+    //            {
+    //                // 執行移動指令
+    //                int moveCost = Move(selectedUnit, cell, (cost) =>
+    //                {
+    //                    // 扣除移動的行動點數
+    //                    if (cost >= 0)
+    //                        selectedUnit.ActionPoint -= cost;
+    //                    else
+    //                    {
+    //                        // do something ...
+    //                    }
+    //                    // 判斷是否有剩餘的行動點數
+    //                    if (selectedUnit.ActionPoint <= 0)
+    //                    {
+    //                        // 耗完行動點數則重新整理行動排序
+    //                        refreshActionQueue();
+    //                    }
+    //                });
+
+    //            }
+    //        }
+    //    }
+    //    else
+    //    {
+    //        cursorCell = cell;
+    //        if(selectedUnit == CurrentUnit && !attackAim)
+    //        {
+    //            markReachableCells(cell);
+    //        }
+    //        else if(selectedUnit == CurrentUnit && attackAim && cell != null)
+    //        {
+    //            showTrajectory(selectedUnit.Location, cell, selectedSkill);
+    //        }
     //    }
     //}
 
-    private void SetSkillButton(IHexUnit unit)
+    private void SetSkillBtnList(IHexUnit unit, bool interactable, Action<ISkill> action)
     {
-        //if (skillButton != null)
-            skillButton.SetJobClass(unit.Job);
+        skillList.Refresh(unit.GetSkills(), interactable, action);
     }
 
     private void ShowUnitInfo(IHexUnit unit)
     {
         if (unitInfo != null)
             unitInfo.ShowUnitInfo(unit);
-    }
-
-    // 標記可移動的所有地圖格
-    private void markReachableCells(HexCell cell)
-    {
-        foreach (var c in currentUnitReachableCells)
-        {
-            if (c == cell && c.iUnit == null)
-                cell.EnableHighlight(Color.blue);
-            else if (c.iUnit == null)
-                c.EnableHighlight(new Color(0, 0, 1f, 0.4f));
-        }
-        attackAim = false;
     }
 
     // 進行移動並回傳移動所消耗的行動點數 (Action<int> => void Func(int n))
@@ -251,6 +226,7 @@ public class ChessManager : MonoBehaviour
         //    afterMove.Invoke(moveCost);
         // 語法糖寫法
         afterMove?.Invoke(moveCost);
+        ShowUnitInfo(unit);
     }
 
     private void refreshActionQueue()
@@ -263,18 +239,17 @@ public class ChessManager : MonoBehaviour
         // 重新整理頭像順序
         refreshHeadQueue(unitQueue);
 
-
         // 指定滿進度條的棋子為行動者
         setChessAction(unitQueue[0]);
         // 扣除行動條值
-        float time = remainTime(currentUnit);
+        float time = remainTime(CurrentUnit);
         for (int i = 0; i < unitQueue.Count; i++)
         {
             IHexUnit unit = unitQueue[i];
             unit.ActionProcess = (unit.ActionProcess + time * unit.Agility);
         }
         // 行動值滿後-100
-        currentUnit.ActionProcess %= 100;
+        CurrentUnit.ActionProcess %= 100;
 
 
         // remain time of next action
@@ -294,56 +269,30 @@ public class ChessManager : MonoBehaviour
     // 指定當前回合行動的角色
     private void setChessAction(IHexUnit unit)
     {
-        foreach(var c in currentUnitReachableCells)
+        if (players.TryGetValue(unit.Group, out IPlayer player))
+        {
+            player.AwakeWithUnit(unit);
+        }
+        else
+        {
+            Debug.LogError($"Specific player of group[{unit.Group}] not found.");
+        }
+        foreach (var c in currentUnitReachableCells)
         {
             c.DisableHightlight();
         }
-        currentUnit = unitQueue[0];
-        currentUnit.ActionPoint = 20;       // 給予角色行動點數
-        cameraBrain.ActiveVirtualCamera.LookAt = currentUnit.transform;
-        cameraBrain.ActiveVirtualCamera.Follow = currentUnit.transform;
+        CurrentUnit = unitQueue[0];
+        CurrentUnit.ActionPoint = 20;       // 給予角色行動點數
+        cameraBrain.ActiveVirtualCamera.LookAt = CurrentUnit.transform;
+        cameraBrain.ActiveVirtualCamera.Follow = CurrentUnit.transform;
         // 取得可移動的範圍
-        currentUnitReachableCells = hexGrid.GetReachableCells(currentUnit.Location,currentUnit.Speed);
+        currentUnitReachableCells = hexGrid.GetReachableCells(CurrentUnit.Location,CurrentUnit.Speed);
     }
 
     // 重新整理頭像排序
     private void refreshHeadQueue(IList<IHexUnit> queue)
     {
-        for(int i = 0; i < heads.Length; i++)
-        {
-            IHexUnit unit = queue[i];
-            heads[i].GetComponentInChildren<TextMeshProUGUI>().text = unit.name.Split(' ')[1];
-            Button botton = heads[i].GetComponent<Button>();
-            if (unit.IsAlive)
-            {
-                botton.interactable = true;
-                botton.onClick.RemoveAllListeners();
-                botton.onClick.AddListener(() =>
-                {
-                    SelectUnit(unit);
-                    if (unit == currentUnit)
-                        markReachableCells(unit.Location);
-                });
-            }
-            else
-            {
-                // 把按鈕的可控性關閉
-                botton.interactable = false;
-            }
-        }
-    }
-
-    // 選擇腳色
-    public void SelectUnit(IHexUnit unit)
-    {   
-        selectedUnit = unit;
-        if(selectedUnit != currentUnit)
-            selectedUnit.Location.EnableHighlight(new Color(1, 0, 0, 0.4f));
-        cameraBrain.ActiveVirtualCamera.LookAt = unit.transform;
-        cameraBrain.ActiveVirtualCamera.Follow = unit.transform;
-
-        ShowUnitInfo(unit);
-        SetSkillButton(unit);
+        headQueue.RefreshQueue(queue, null);
     }
 
     private void Shuffle<T>(List<T> list)
@@ -357,32 +306,184 @@ public class ChessManager : MonoBehaviour
         }
     }
 
-    // 搜尋可攻擊的範圍
-    private void SearchAttackableCells(IHexUnit unit, int atkRange)
+    public bool DoSkill(IHexUnit attacker, HexCell location, ISkill skill)
     {
-        currentUnitAttackableCells = hexGrid.GetAttackableCells(unit.Location, atkRange);
-        foreach(HexCell cell in currentUnitAttackableCells)   // atkCells[0], [1], [2]
+        bool result = false;
+        int groupMask = -1 ^ attacker.Group;
+        List<HexCell> inRange;
+        switch (skill.SkillRangeType)
         {
-            if (cell.iUnit == null)
-                cell.EnableHighlight(new Color(1f, 0, 0, 0.4f));
-            else if(cell.iUnit != currentUnit && cell.iUnit.Group != currentUnit.Group)
-                cell.EnableHighlight(Color.red);
+            case ESKillRangeType.Single:
+                if (ValidateTarget(CurrentUnit, location.iUnit, groupMask))          
+                {
+                    attack(attacker, location.iUnit);
+                }
+                break;
+            case ESKillRangeType.Circle:
+                inRange = hexGrid.GetCellsInRange(location, skill.HitRange);
+                foreach(var cell in inRange)
+                {
+                    if(ValidateTarget(CurrentUnit, cell.iUnit, groupMask))
+                    {
+                        attack(attacker, cell.iUnit);
+                    }
+                }
+                break;
+            case ESKillRangeType.Line:
+                hexGrid.FindPath(attacker.Location, location, skill.HitRange);
+                inRange = hexGrid.GetPath();
+                foreach (var cell in inRange)
+                {
+                    if (ValidateTarget(CurrentUnit, cell.iUnit, groupMask))
+                    {
+                        attack(attacker, cell.iUnit);
+                    }
+                }
+                break;
         }
+        return result;
     }
 
-    public void OnClickAttackButton(int atkRange)
+    public bool ValidateTarget(IHexUnit attacker, IHexUnit defender, int groupMask = -1, bool isAlive = true)
     {
-        //Debug.Log($"Unit:{((Chess)selectedUnit).name}, range:{atkRange}");
-        // 選擇的單位與可行動單位是同一個
-        SelectUnit(currentUnit);
-        SearchAttackableCells(currentUnit, atkRange);
-        attackAim = true;
+        
+        return defender != null && 
+            (defender.Group & groupMask) != 0 &&
+            (defender.IsAlive && isAlive);
     }
 
-    private void Attack(IHexUnit attacker, IHexUnit defender)
+    private void attack(IHexUnit attacker, IHexUnit defender)
     {
         defender.HitPoint -= attacker.Attack;
         if (!defender.IsAlive)
             DestroyUnit(defender);
     }
 }
+
+/// <summary>
+/// Part of server
+/// </summary>
+public partial class ChessManager : IOperationHandler
+{
+    Dictionary<int, IHexUnit> _units = new Dictionary<int, IHexUnit>();
+
+    public bool CheckTurn(IHexUnit unit)
+    {
+        return unit == CurrentUnit;
+    }
+
+    public bool CheckMove(IHexUnit unit, HexCell goal)
+    {
+        if (!CheckTurn(unit))
+            return false;
+        hexGrid.FindPath(unit.Location, goal, unit.Speed);
+        path = hexGrid.GetPath();
+        return path != null && path.Count > 1;
+    }
+
+    public byte OperationCode => (byte)EOperationCode.GameLogic;
+
+    public void Handle(IPeer peer, IDictionary<byte, object> payload)
+    {
+        foreach (var pair in payload)
+        {
+            switch (pair.Key)
+            {
+                case (byte)EGameSwitchCode.AttackRequest:
+                    break;
+                case (byte)EGameSwitchCode.MoveRequest:
+                    onReceiveMoveReq(peer, (MoveCommand)pair.Value);
+                    break;
+
+            }
+        }
+    }
+
+    public void UpdateHandler(float deltaTime)
+    {
+        
+    }
+
+    public void OnPeerConnected(IPeer peer)
+    {
+
+    }
+
+    public void OnPeerDisconnected(IPeer peer)
+    {
+
+    }
+
+    private void onReceiveMoveReq(IPeer peer, MoveCommand packet)
+    {
+        int unitId = packet.UnitId;
+        int cellId = packet.CellId;
+        if (CheckMove(_units[unitId], hexGrid.GetCell(cellId)))
+        {
+            peer.Send(
+                OperationCode,
+                new Dictionary<byte, object>
+                {
+                    {(byte)EGameSwitchCode.MoveCommand, new MoveCommand{UnitId = unitId, CellId = cellId} }
+                },
+                Network.Shared.EReliability.ReliableOrdered);
+            Debug.Log("Send packet");
+        }
+        else
+        {
+            Debug.LogError($"Unit[{unitId}] cannot move to specific cell.");
+        }
+    }
+}
+
+/// <summary>
+/// Part of client
+/// </summary>
+public partial class ChessManager
+{
+    public int DoMove(int unitId, int cellId)
+    {
+        return Move(_units[unitId], hexGrid.GetCell(cellId), (cost) =>
+        {
+            // 扣除移動的行動點數
+            if (cost >= 0)
+                _units[unitId].ActionPoint -= cost;
+            else
+            {
+                // do something ...
+            }
+            // 判斷是否有剩餘的行動點數
+            if (_units[unitId].ActionPoint <= 0)
+            {
+                // 耗完行動點數則重新整理行動排序
+                refreshActionQueue();
+            }
+        });
+    }
+
+    public void DoAttack(int attacker, int defender, SkillInfo skill)
+    {
+        // 進行攻擊
+        attack(_units[attacker], _units[defender]);
+        CurrentUnit.ActionPoint = 0;
+        refreshActionQueue();
+    }
+    
+    public void FocusOnUnit(IHexUnit unit, bool interactable)
+    {
+        cameraBrain.ActiveVirtualCamera.LookAt = unit.transform;
+        cameraBrain.ActiveVirtualCamera.Follow = unit.transform;
+
+        if (players.TryGetValue(unit.Group, out IPlayer player))
+        {
+            ShowUnitInfo(unit);
+            SetSkillBtnList(unit, interactable, player.OnSelectSkill);
+        }
+    }
+}
+
+public interface IChessManager
+{
+
+}
+

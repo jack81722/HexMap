@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6106682558187012201}
   - component: {fileID: 8018375494580062776}
   - component: {fileID: 6372201673871492101}
+  - component: {fileID: 796514532600237051}
   m_Layer: 5
   m_Name: SkillButton
   m_TagString: Untagged
@@ -117,3 +118,20 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &796514532600237051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8015039155311948265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe289bc922de36a44a5a234961479c41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  image: {fileID: 0}
+  icons: []
+  rect: {fileID: 0}
+  button: {fileID: 0}
+  chessMgr: {fileID: 0}

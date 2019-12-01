@@ -4,8 +4,9 @@ using UnityEngine;
 
 public interface IHexUnit
 {
+    int Id { get; }
     int Group { get; set; }         // 陣營
-    JobClass Job {get;set;}         // 職業
+    JobClass Job { get; }         // 職業
 
     string name { get; }
     Transform transform { get; }
@@ -21,6 +22,8 @@ public interface IHexUnit
 
     float Agility { get; }
     float ActionProcess { get; set; }
+
+    IList<ISkill> GetSkills();
 }
 
 public enum JobClass

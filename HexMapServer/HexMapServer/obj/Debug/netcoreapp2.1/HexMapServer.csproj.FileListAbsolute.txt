@@ -1,0 +1,11 @@
+E:\Work Space\Unity Projects\HexMap.git\HexMapServer\HexMapServer\bin\Debug\netcoreapp2.1\HexMapServer.deps.json
+E:\Work Space\Unity Projects\HexMap.git\HexMapServer\HexMapServer\bin\Debug\netcoreapp2.1\HexMapServer.runtimeconfig.json
+E:\Work Space\Unity Projects\HexMap.git\HexMapServer\HexMapServer\bin\Debug\netcoreapp2.1\HexMapServer.runtimeconfig.dev.json
+E:\Work Space\Unity Projects\HexMap.git\HexMapServer\HexMapServer\bin\Debug\netcoreapp2.1\HexMapServer.dll
+E:\Work Space\Unity Projects\HexMap.git\HexMapServer\HexMapServer\obj\Debug\netcoreapp2.1\HexMapServer.csprojAssemblyReference.cache
+E:\Work Space\Unity Projects\HexMap.git\HexMapServer\HexMapServer\obj\Debug\netcoreapp2.1\HexMapServer.csproj.CoreCompileInputs.cache
+E:\Work Space\Unity Projects\HexMap.git\HexMapServer\HexMapServer\obj\Debug\netcoreapp2.1\HexMapServer.AssemblyInfoInputs.cache
+E:\Work Space\Unity Projects\HexMap.git\HexMapServer\HexMapServer\obj\Debug\netcoreapp2.1\HexMapServer.AssemblyInfo.cs
+E:\Work Space\Unity Projects\HexMap.git\HexMapServer\HexMapServer\bin\Debug\netcoreapp2.1\HexMapServer.pdb
+E:\Work Space\Unity Projects\HexMap.git\HexMapServer\HexMapServer\obj\Debug\netcoreapp2.1\HexMapServer.dll
+E:\Work Space\Unity Projects\HexMap.git\HexMapServer\HexMapServer\obj\Debug\netcoreapp2.1\HexMapServer.pdb
